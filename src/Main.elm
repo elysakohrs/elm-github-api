@@ -55,6 +55,10 @@ view model =
     text "Hello World!"
 
 
+
+-- MAIN --
+
+
 main : Program Value Model Msg
 main =
     Html.programWithFlags
