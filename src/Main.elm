@@ -1,9 +1,11 @@
 module Main exposing (main)
 
+import Config exposing (Config)
 import Html
 import Html.Styled exposing (..)
+import Html.Styled.Events exposing (onClick)
 import Json.Decode as JD exposing (Value)
-import Config exposing (Config)
+
 
 
 -- MODEL --
@@ -11,6 +13,7 @@ import Config exposing (Config)
 
 type alias Model =
     { config : Config
+    , val : Int
     }
 
 
@@ -18,7 +21,7 @@ init : Value -> ( Model, Cmd Msg )
 init configValue =
     case JD.decodeValue Config.configDecoder configValue of
         Ok config ->
-            { config = config } ! []
+            { config = config, val = 0 } ! []
 
         Err error ->
             Debug.crash error
@@ -29,12 +32,18 @@ init configValue =
 
 
 type Msg
-    = NoOp
+    = Increment
+    | Decrement
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    model ! []
+    case msg of
+        Increment ->
+            { model | val = model.val + 1 } ! []
+
+        Decrement ->
+            { model | val = model.val - 1 } ! []
 
 
 
@@ -52,7 +61,11 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    text "Hello World!"
+    div []
+        [ button [ onClick Decrement ] [ text "-" ]
+        , div [] [ text (toString model.val) ]
+        , button [ onClick Increment ] [ text "+" ]
+        ]
 
 
 
