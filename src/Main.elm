@@ -8,7 +8,7 @@ import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
-import Json.Decode.Pipeline exposing (decode, required)
+import Json.Decode.Pipeline exposing (decode, optional, required)
 
 
 
@@ -41,6 +41,8 @@ type Msg
     = Change String
     | Submit
     | UpdateSearchResult (Result Http.Error (List User))
+    | ClickUser String
+    | UpdateUserRepos (Result Http.Error (List Repo))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -56,6 +58,17 @@ update msg model =
             case result of
                 Ok newSearchResult ->
                     { model | userList = newSearchResult } ! []
+
+                Err _ ->
+                    model ! []
+
+        ClickUser login ->
+            ( model, getUserRepos login )
+
+        UpdateUserRepos repoList ->
+            case repoList of
+                Ok repoList ->
+                    { model | userRepoList = repoList } ! []
 
                 Err _ ->
                     model ! []
@@ -82,20 +95,33 @@ view model =
             , button [ onClick Submit ] [ text "Submit" ]
             ]
         , toHtmlList model.userList
+        , reposToHtmlList model.userRepoList
         ]
 
 
 toHtmlList : List User -> Html Msg
 toHtmlList userList =
     div []
-        (List.map toLi userList)
+        (List.map userToLi userList)
 
 
-toLi : User -> Html Msg
-toLi user =
-    div [ css [ display inlineBlock ] ]
+userToLi : User -> Html Msg
+userToLi user =
+    div [ onClick (ClickUser user.login), css [ display inlineBlock ] ]
         [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35) ] ] []
         ]
+
+
+reposToHtmlList : List Repo -> Html Msg
+reposToHtmlList repoList =
+    div []
+        (List.map repoToLi repoList)
+
+
+repoToLi : Repo -> Html Msg
+repoToLi repo =
+    div []
+        [ text repo.name ]
 
 
 
@@ -137,6 +163,31 @@ type alias Repo =
     , language : String
     , watchersCount : Int
     }
+
+
+getUserRepos : String -> Cmd Msg
+getUserRepos userLogin =
+    let
+        url =
+            "https://api.github.com/users/" ++ userLogin ++ "/repos"
+
+        request =
+            Http.get url repoListDecoder
+    in
+    Http.send UpdateUserRepos request
+
+
+repoListDecoder : Decoder (List Repo)
+repoListDecoder =
+    JD.list repoDecoder
+
+
+repoDecoder : Decoder Repo
+repoDecoder =
+    decode Repo
+        |> required "name" JD.string
+        |> optional "language" JD.string ""
+        |> required "watchers_count" JD.int
 
 
 main : Program Value Model Msg
