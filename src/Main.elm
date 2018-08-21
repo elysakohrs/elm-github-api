@@ -93,12 +93,6 @@ searchGit searchQuery =
     Http.send UpdateSearchResult request
 
 
-
--- request =
---     Http.getString "https://api.github.com/search/users?q=" ++ searchQuery
--- Http.send UpdateSearchResult request
-
-
 main : Program Value Model Msg
 main =
     Html.programWithFlags
