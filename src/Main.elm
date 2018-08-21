@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Config exposing (Config)
-import Css exposing (borderRadius, display, height, inlineBlock, px, width)
+import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, src)
@@ -40,7 +40,7 @@ init configValue =
 type Msg
     = Change String
     | Submit
-    | UpdateSearchResult (Result Http.Error (List User))
+    | UpdateUserList (Result Http.Error (List User))
     | ClickUser String
     | UpdateUserRepos (Result Http.Error (List Repo))
 
@@ -52,9 +52,9 @@ update msg model =
             { model | inputText = newInputText } ! []
 
         Submit ->
-            ( model, searchGit model.inputText )
+            ( model, getUsers model.inputText )
 
-        UpdateSearchResult result ->
+        UpdateUserList result ->
             case result of
                 Ok newSearchResult ->
                     { model | userList = newSearchResult } ! []
@@ -89,39 +89,42 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ css [ textAlign center ] ]
         [ div []
             [ input [ onInput Change ] []
             , button [ onClick Submit ] [ text "Submit" ]
             ]
-        , toHtmlList model.userList
-        , reposToHtmlList model.userRepoList
+        , userListToHtml model.userList
+        , repoListToHtml model.userRepoList
         ]
 
 
-toHtmlList : List User -> Html Msg
-toHtmlList userList =
+userListToHtml : List User -> Html Msg
+userListToHtml userList =
     div []
-        (List.map userToLi userList)
+        (List.map userToHtml userList)
 
 
-userToLi : User -> Html Msg
-userToLi user =
+userToHtml : User -> Html Msg
+userToHtml user =
     div [ onClick (ClickUser user.login), css [ display inlineBlock ] ]
-        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35) ] ] []
+        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35), margin (px 5) ] ] []
         ]
 
 
-reposToHtmlList : List Repo -> Html Msg
-reposToHtmlList repoList =
+repoListToHtml : List Repo -> Html Msg
+repoListToHtml repoList =
     div []
-        (List.map repoToLi repoList)
+        (List.map repoToHtml repoList)
 
 
-repoToLi : Repo -> Html Msg
-repoToLi repo =
-    div []
-        [ text repo.name ]
+repoToHtml : Repo -> Html Msg
+repoToHtml repo =
+    div [ css [ border2 (px 1) solid, margin (px 5) ] ]
+        [ div [] [ text repo.name ]
+        , div [] [ text ("Language: " ++ repo.language) ]
+        , div [] [ text ("Watchers: " ++ toString repo.watchersCount) ]
+        ]
 
 
 
@@ -134,20 +137,20 @@ type alias User =
     }
 
 
-searchGit : String -> Cmd Msg
-searchGit searchQuery =
+getUsers : String -> Cmd Msg
+getUsers searchQuery =
     let
         url =
             "https://api.github.com/search/users?q=" ++ searchQuery
 
         request =
-            Http.get url searchResultDecoder
+            Http.get url userSearchDecoder
     in
-    Http.send UpdateSearchResult request
+    Http.send UpdateUserList request
 
 
-searchResultDecoder : Decoder (List User)
-searchResultDecoder =
+userSearchDecoder : Decoder (List User)
+userSearchDecoder =
     JD.field "items" (JD.list userDecoder)
 
 
