@@ -1,9 +1,11 @@
 module Main exposing (main)
 
 import Config exposing (Config)
-import Html exposing (..)
-import Html.Attributes exposing (src)
-import Html.Events exposing (onClick, onInput)
+import Css exposing (borderRadius, display, height, inlineBlock, px, width)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -17,6 +19,7 @@ type alias Model =
     { config : Config
     , inputText : String
     , userList : List User
+    , userRepoList : List Repo
     }
 
 
@@ -24,7 +27,7 @@ init : Value -> ( Model, Cmd Msg )
 init configValue =
     case JD.decodeValue Config.configDecoder configValue of
         Ok config ->
-            { config = config, inputText = "", userList = [] } ! []
+            { config = config, inputText = "", userList = [], userRepoList = [] } ! []
 
         Err error ->
             Debug.crash error
@@ -74,35 +77,29 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ input [ onInput Change ] []
-        , button [ onClick Submit ] [ text "Submit" ]
+        [ div []
+            [ input [ onInput Change ] []
+            , button [ onClick Submit ] [ text "Submit" ]
+            ]
         , toHtmlList model.userList
         ]
 
 
 toHtmlList : List User -> Html Msg
 toHtmlList userList =
-    ul []
+    div []
         (List.map toLi userList)
 
 
 toLi : User -> Html Msg
 toLi user =
-    div []
-        [ text user.login
-        , img [ src user.avatarUrl ] []
+    div [ css [ display inlineBlock ] ]
+        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35) ] ] []
         ]
 
 
 
 -- HTTP --
-
-
-type alias SearchResult =
-    { totalCount : Int
-    , incompleteResults : Bool
-    , users : List User
-    }
 
 
 type alias User =
@@ -135,10 +132,17 @@ userDecoder =
         |> required "avatar_url" JD.string
 
 
+type alias Repo =
+    { name : String
+    , language : String
+    , watchersCount : Int
+    }
+
+
 main : Program Value Model Msg
 main =
     Html.programWithFlags
-        { view = view
+        { view = view >> Html.Styled.toUnstyled
         , init = init
         , update = update
         , subscriptions = subscriptions
