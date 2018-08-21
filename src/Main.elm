@@ -5,7 +5,8 @@ import Html
 import Html.Styled exposing (..)
 import Html.Styled.Events exposing (onClick, onInput)
 import Http
-import Json.Decode as JD exposing (Decoder, Value)
+import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
+import Json.Decode.Pipeline exposing (decode, required)
 
 
 
@@ -36,7 +37,7 @@ init configValue =
 type Msg
     = Change String
     | Submit
-    | UpdateSearchResult (Result Http.Error String)
+    | UpdateSearchResult (Result Http.Error SearchResult)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -48,11 +49,13 @@ update msg model =
         Submit ->
             ( model, searchGit model.inputText )
 
-        UpdateSearchResult (Ok newSearchResult) ->
-            ( { model | searchResult = newSearchResult }, Cmd.none )
+        UpdateSearchResult result ->
+            case result of
+                Ok newSearchResult ->
+                    { model | searchResult = toString newSearchResult.users } ! []
 
-        UpdateSearchResult (Err _) ->
-            ( model, Cmd.none )
+                Err _ ->
+                    model ! []
 
 
 
@@ -81,6 +84,19 @@ view model =
 -- HTTP --
 
 
+type alias SearchResult =
+    { totalCount : Int
+    , incompleteResults : Bool
+    , users : List User
+    }
+
+
+type alias User =
+    { login : String
+    , avatarUrl : String
+    }
+
+
 searchGit : String -> Cmd Msg
 searchGit searchQuery =
     let
@@ -88,9 +104,24 @@ searchGit searchQuery =
             "https://api.github.com/search/users?q=" ++ searchQuery
 
         request =
-            Http.getString url
+            Http.get url searchResultDecoder
     in
     Http.send UpdateSearchResult request
+
+
+searchResultDecoder : Decoder SearchResult
+searchResultDecoder =
+    decode SearchResult
+        |> required "total_count" JD.int
+        |> required "incomplete_results" JD.bool
+        |> required "items" (JD.list userDecoder)
+
+
+userDecoder : Decoder User
+userDecoder =
+    decode User
+        |> required "login" JD.string
+        |> required "avatar_url" JD.string
 
 
 main : Program Value Model Msg
