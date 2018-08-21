@@ -1,9 +1,9 @@
 module Main exposing (main)
 
 import Config exposing (Config)
-import Html
-import Html.Styled exposing (..)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html exposing (..)
+import Html.Attributes exposing (src)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -16,7 +16,7 @@ import Json.Decode.Pipeline exposing (decode, required)
 type alias Model =
     { config : Config
     , inputText : String
-    , searchResult : String
+    , userList : List User
     }
 
 
@@ -24,7 +24,7 @@ init : Value -> ( Model, Cmd Msg )
 init configValue =
     case JD.decodeValue Config.configDecoder configValue of
         Ok config ->
-            { config = config, inputText = "", searchResult = "" } ! []
+            { config = config, inputText = "", userList = [] } ! []
 
         Err error ->
             Debug.crash error
@@ -37,7 +37,7 @@ init configValue =
 type Msg
     = Change String
     | Submit
-    | UpdateSearchResult (Result Http.Error SearchResult)
+    | UpdateSearchResult (Result Http.Error (List User))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -52,7 +52,7 @@ update msg model =
         UpdateSearchResult result ->
             case result of
                 Ok newSearchResult ->
-                    { model | searchResult = toString newSearchResult.users } ! []
+                    { model | userList = newSearchResult } ! []
 
                 Err _ ->
                     model ! []
@@ -75,8 +75,22 @@ view : Model -> Html Msg
 view model =
     div []
         [ input [ onInput Change ] []
-        , div [] [ text model.searchResult ]
         , button [ onClick Submit ] [ text "Submit" ]
+        , toHtmlList model.userList
+        ]
+
+
+toHtmlList : List User -> Html Msg
+toHtmlList userList =
+    ul []
+        (List.map toLi userList)
+
+
+toLi : User -> Html Msg
+toLi user =
+    div []
+        [ text user.login
+        , img [ src user.avatarUrl ] []
         ]
 
 
@@ -109,12 +123,9 @@ searchGit searchQuery =
     Http.send UpdateSearchResult request
 
 
-searchResultDecoder : Decoder SearchResult
+searchResultDecoder : Decoder (List User)
 searchResultDecoder =
-    decode SearchResult
-        |> required "total_count" JD.int
-        |> required "incomplete_results" JD.bool
-        |> required "items" (JD.list userDecoder)
+    JD.field "items" (JD.list userDecoder)
 
 
 userDecoder : Decoder User
@@ -127,7 +138,7 @@ userDecoder =
 main : Program Value Model Msg
 main =
     Html.programWithFlags
-        { view = view >> Html.Styled.toUnstyled
+        { view = view
         , init = init
         , update = update
         , subscriptions = subscriptions
