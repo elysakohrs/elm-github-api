@@ -3,8 +3,9 @@ module Main exposing (main)
 import Config exposing (Config)
 import Html
 import Html.Styled exposing (..)
-import Html.Styled.Events exposing (onClick)
-import Json.Decode as JD exposing (Value)
+import Html.Styled.Events exposing (onClick, onInput)
+import Http
+import Json.Decode as JD exposing (Decoder, Value)
 
 
 
@@ -13,7 +14,8 @@ import Json.Decode as JD exposing (Value)
 
 type alias Model =
     { config : Config
-    , val : Int
+    , inputText : String
+    , searchResult : String
     }
 
 
@@ -21,7 +23,7 @@ init : Value -> ( Model, Cmd Msg )
 init configValue =
     case JD.decodeValue Config.configDecoder configValue of
         Ok config ->
-            { config = config, val = 0 } ! []
+            { config = config, inputText = "", searchResult = "" } ! []
 
         Err error ->
             Debug.crash error
@@ -32,18 +34,25 @@ init configValue =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = Change String
+    | Submit
+    | UpdateSearchResult (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            { model | val = model.val + 1 } ! []
+        Change newInputText ->
+            { model | inputText = newInputText } ! []
 
-        Decrement ->
-            { model | val = model.val - 1 } ! []
+        Submit ->
+            ( model, searchGit model.inputText )
+
+        UpdateSearchResult (Ok newSearchResult) ->
+            ( { model | searchResult = newSearchResult }, Cmd.none )
+
+        UpdateSearchResult (Err _) ->
+            ( model, Cmd.none )
 
 
 
@@ -62,14 +71,32 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , div [] [ text (toString model.val) ]
-        , button [ onClick Increment ] [ text "+" ]
+        [ input [ onInput Change ] []
+        , div [] [ text model.searchResult ]
+        , button [ onClick Submit ] [ text "Submit" ]
         ]
 
 
 
--- MAIN --
+-- HTTP --
+
+
+searchGit : String -> Cmd Msg
+searchGit searchQuery =
+    let
+        url =
+            "https://api.github.com/search/users?q=" ++ searchQuery
+
+        request =
+            Http.getString url
+    in
+    Http.send UpdateSearchResult request
+
+
+
+-- request =
+--     Http.getString "https://api.github.com/search/users?q=" ++ searchQuery
+-- Http.send UpdateSearchResult request
 
 
 main : Program Value Model Msg
