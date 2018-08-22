@@ -1,4 +1,4 @@
-module View exposing (repoListToHtml, repoToHtml, view)
+module View exposing (view)
 
 import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
 import Html.Styled exposing (..)
@@ -6,7 +6,7 @@ import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model, Repo, User)
 import Msg exposing (..)
-import Routing exposing (usersPath)
+import Routing exposing (reposPath, usersPath)
 
 
 view : Model -> Html Msg
@@ -47,12 +47,25 @@ userSearchResultsView model searchQuery =
         (List.map userToHtml model.userList)
 
 
+userToHtml : User -> Html Msg
+userToHtml user =
+    div [ onClick (ChangeLocation (reposPath user.login)), css [ display inlineBlock ] ]
+        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35), margin (px 5) ] ] []
+        ]
+
+
 userReposView : Model -> String -> Html Msg
 userReposView model userLogin =
     div [ css [ textAlign center ] ]
-        [ div []
-            [ text "USER REPOS VIEW"
-            ]
+        (List.map repoToHtml model.userRepoList)
+
+
+repoToHtml : Repo -> Html Msg
+repoToHtml repo =
+    div [ css [ border2 (px 1) solid, margin (px 5) ] ]
+        [ div [] [ text repo.name ]
+        , div [] [ text ("Language: " ++ repo.language) ]
+        , div [] [ text ("Watchers: " ++ toString repo.watchersCount) ]
         ]
 
 
@@ -62,32 +75,4 @@ notFoundView =
         [ div []
             [ text "NOT FOUND VIEW"
             ]
-        ]
-
-
-userListToHtml : List User -> Html Msg
-userListToHtml userList =
-    div []
-        (List.map userToHtml userList)
-
-
-userToHtml : User -> Html Msg
-userToHtml user =
-    div [ onClick (ClickUser user.login), css [ display inlineBlock ] ]
-        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35), margin (px 5) ] ] []
-        ]
-
-
-repoListToHtml : List Repo -> Html Msg
-repoListToHtml repoList =
-    div []
-        (List.map repoToHtml repoList)
-
-
-repoToHtml : Repo -> Html Msg
-repoToHtml repo =
-    div [ css [ border2 (px 1) solid, margin (px 5) ] ]
-        [ div [] [ text repo.name ]
-        , div [] [ text ("Language: " ++ repo.language) ]
-        , div [] [ text ("Watchers: " ++ toString repo.watchersCount) ]
         ]

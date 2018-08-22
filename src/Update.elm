@@ -13,8 +13,6 @@ update msg model =
         Change newInputText ->
             { model | inputText = newInputText } ! []
 
-        -- Submit ->
-        --     ( model, getUsers model.inputText )
         UpdateUserList result ->
             case result of
                 Ok newSearchResult ->
@@ -22,9 +20,6 @@ update msg model =
 
                 Err _ ->
                     model ! []
-
-        ClickUser login ->
-            ( model, getUserRepos login )
 
         UpdateUserRepos repoList ->
             case repoList of
@@ -40,7 +35,7 @@ update msg model =
                     parseLocation location
 
                 _ =
-                    Debug.log "new route" newRoute
+                    Debug.log "ON LOCSTION CHANGE" location
             in
             case newRoute of
                 HomeRoute ->
@@ -56,8 +51,4 @@ update msg model =
                     { model | route = newRoute } ! []
 
         ChangeLocation path ->
-            let
-                _ =
-                    Debug.log "change location path" path
-            in
-            ( model, Navigation.newUrl path )
+            ( model, Navigation.newUrl ("/" ++ path) )
