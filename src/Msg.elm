@@ -12,4 +12,3 @@ type Msg
     | GetUserRepos String
     | UpdateUserRepos (Result Http.Error (List Repo))
     | OnLocationChange Location
-    | ChangeLocation String

@@ -39,19 +39,5 @@ update msg model =
             let
                 newRoute =
                     parseLocation location
-
-                _ =
-                    Debug.log "ON LOCSTION CHANGE" location
             in
-            -- case newRoute of
-            -- HomeRoute ->
-            --     ( { model | route = newRoute }, Cmd.none )
-            -- UserSearchRoute searchQuery ->
-            --     ( { model | route = newRoute }, requestUsers searchQuery )
-            -- UserReposRoute userLogin ->
-            --     ( { model | route = newRoute }, getUserRepos userLogin )
-            -- NotFoundRoute ->
             { model | route = newRoute } ! []
-
-        ChangeLocation path ->
-            ( model, Navigation.newUrl ("/" ++ path) )
