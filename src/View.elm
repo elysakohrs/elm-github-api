@@ -1,11 +1,13 @@
 module View exposing (view)
 
-import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
+import Css exposing (center, textAlign)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, href, src)
+import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick, onInput)
-import Model exposing (Model, Repo, User)
-import Msg exposing (..)
+import Model exposing (Model)
+import Msg exposing (Msg(..))
+import UserReposView exposing (userReposView)
+import UserSearchView exposing (userSearchView)
 
 
 view : Model -> Html Msg
@@ -21,7 +23,7 @@ page model =
             homeView model
 
         Model.UserSearchRoute searchQuery ->
-            userSearchResultsView model searchQuery
+            userSearchView model searchQuery
 
         Model.UserReposRoute userLogin ->
             userReposView model userLogin
@@ -37,34 +39,6 @@ homeView model =
             [ input [ onInput Change ] []
             , button [ onClick (GetUsers model.inputText) ] [ text "Submit" ]
             ]
-        ]
-
-
-userSearchResultsView : Model -> String -> Html Msg
-userSearchResultsView model searchQuery =
-    div [ css [ textAlign center ] ]
-        (List.map userToHtml model.userList)
-
-
-userToHtml : User -> Html Msg
-userToHtml user =
-    div [ onClick (GetUserRepos user.login), css [ display inlineBlock ] ]
-        [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35), margin (px 5) ] ] []
-        ]
-
-
-userReposView : Model -> String -> Html Msg
-userReposView model userLogin =
-    div [ css [ textAlign center ] ]
-        (List.map repoToHtml model.userRepoList)
-
-
-repoToHtml : Repo -> Html Msg
-repoToHtml repo =
-    div [ css [ border2 (px 1) solid, margin (px 5) ] ]
-        [ div [] [ text repo.name ]
-        , div [] [ text ("Language: " ++ repo.language) ]
-        , div [] [ text ("Watchers: " ++ toString repo.watchersCount) ]
         ]
 
 
