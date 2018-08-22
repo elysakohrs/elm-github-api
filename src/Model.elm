@@ -7,6 +7,7 @@ type alias Model =
     { config : Config
     , inputText : String
     , userList : List User
+    , selectedUserLogin : String
     , userRepoList : List Repo
     , route : Route
     }

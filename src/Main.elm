@@ -31,6 +31,7 @@ initialModel config route =
     { config = config
     , inputText = ""
     , userList = []
+    , selectedUserLogin = ""
     , userRepoList = []
     , route = route
     }

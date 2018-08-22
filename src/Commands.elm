@@ -1,4 +1,4 @@
-module Commands exposing (getUserRepos, getUsers, repoDecoder, repoListDecoder, userDecoder, userSearchDecoder)
+module Commands exposing (repoDecoder, repoListDecoder, requestUserRepos, requestUsers, userDecoder, userSearchDecoder)
 
 import Http
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
@@ -7,8 +7,8 @@ import Model exposing (..)
 import Msg exposing (Msg(..))
 
 
-getUsers : String -> Cmd Msg
-getUsers searchQuery =
+requestUsers : String -> Cmd Msg
+requestUsers searchQuery =
     let
         url =
             "https://api.github.com/search/users?q=" ++ searchQuery
@@ -31,8 +31,8 @@ userDecoder =
         |> required "avatar_url" JD.string
 
 
-getUserRepos : String -> Cmd Msg
-getUserRepos userLogin =
+requestUserRepos : String -> Cmd Msg
+requestUserRepos userLogin =
     let
         url =
             "https://api.github.com/users/" ++ userLogin ++ "/repos"

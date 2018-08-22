@@ -26,9 +26,9 @@ parseLocation location =
 
 usersPath : String -> String
 usersPath searchQuery =
-    "users/" ++ searchQuery
+    "/users/" ++ searchQuery
 
 
 reposPath : String -> String
 reposPath userLogin =
-    "repos/" ++ userLogin
+    "/repos/" ++ userLogin

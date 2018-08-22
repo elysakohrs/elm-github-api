@@ -1,13 +1,11 @@
 module View exposing (view)
 
-import Commands exposing (getUsers)
 import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model, Repo, User)
 import Msg exposing (..)
-import Routing exposing (reposPath, usersPath)
 
 
 view : Model -> Html Msg
@@ -37,7 +35,7 @@ homeView model =
     div [ css [ textAlign center ] ]
         [ div []
             [ input [ onInput Change ] []
-            , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
+            , button [ onClick (GetUsers model.inputText) ] [ text "Submit" ]
             ]
         ]
 
@@ -50,7 +48,7 @@ userSearchResultsView model searchQuery =
 
 userToHtml : User -> Html Msg
 userToHtml user =
-    div [ onClick (ChangeLocation (reposPath user.login)), css [ display inlineBlock ] ]
+    div [ onClick (GetUserRepos user.login), css [ display inlineBlock ] ]
         [ img [ src user.avatarUrl, css [ width (px 70), height (px 70), borderRadius (px 35), margin (px 5) ] ] []
         ]
 
