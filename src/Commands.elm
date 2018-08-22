@@ -10,6 +10,9 @@ import Msg exposing (Msg(..))
 getUsers : String -> Cmd Msg
 getUsers searchQuery =
     let
+        _ =
+            Debug.log "USER SEARCH" searchQuery
+
         url =
             "https://api.github.com/search/users?q=" ++ searchQuery
 

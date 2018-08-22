@@ -1,8 +1,10 @@
 module Update exposing (update)
 
 import Commands exposing (..)
-import Model exposing (Model)
+import Model exposing (Model, Route(..))
 import Msg exposing (Msg(..))
+import Navigation exposing (newUrl)
+import Routing exposing (parseLocation, usersPath)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -11,9 +13,8 @@ update msg model =
         Change newInputText ->
             { model | inputText = newInputText } ! []
 
-        Submit ->
-            ( model, getUsers model.inputText )
-
+        -- Submit ->
+        --     ( model, getUsers model.inputText )
         UpdateUserList result ->
             case result of
                 Ok newSearchResult ->
@@ -32,3 +33,31 @@ update msg model =
 
                 Err _ ->
                     model ! []
+
+        OnLocationChange location ->
+            let
+                newRoute =
+                    parseLocation location
+
+                _ =
+                    Debug.log "new route" newRoute
+            in
+            case newRoute of
+                HomeRoute ->
+                    ( { model | route = newRoute }, Cmd.none )
+
+                UserSearchRoute searchQuery ->
+                    ( { model | route = newRoute }, getUsers searchQuery )
+
+                UserReposRoute userLogin ->
+                    ( { model | route = newRoute }, getUserRepos userLogin )
+
+                NotFoundRoute ->
+                    { model | route = newRoute } ! []
+
+        ChangeLocation path ->
+            let
+                _ =
+                    Debug.log "change location path" path
+            in
+            ( model, Navigation.newUrl path )

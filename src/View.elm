@@ -1,22 +1,67 @@
-module View exposing (repoListToHtml, repoToHtml, userListToHtml, userToHtml, view)
+module View exposing (repoListToHtml, repoToHtml, view)
 
 import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model, Repo, User)
 import Msg exposing (..)
+import Routing exposing (usersPath)
 
 
 view : Model -> Html Msg
 view model =
+    div []
+        [ page model ]
+
+
+page : Model -> Html Msg
+page model =
+    case model.route of
+        Model.HomeRoute ->
+            homeView model
+
+        Model.UserSearchRoute searchQuery ->
+            userSearchResultsView model searchQuery
+
+        Model.UserReposRoute userLogin ->
+            userReposView model userLogin
+
+        Model.NotFoundRoute ->
+            notFoundView
+
+
+homeView : Model -> Html Msg
+homeView model =
     div [ css [ textAlign center ] ]
         [ div []
             [ input [ onInput Change ] []
-            , button [ onClick Submit ] [ text "Submit" ]
+            , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
             ]
-        , userListToHtml model.userList
-        , repoListToHtml model.userRepoList
+        ]
+
+
+userSearchResultsView : Model -> String -> Html Msg
+userSearchResultsView model searchQuery =
+    div [ css [ textAlign center ] ]
+        (List.map userToHtml model.userList)
+
+
+userReposView : Model -> String -> Html Msg
+userReposView model userLogin =
+    div [ css [ textAlign center ] ]
+        [ div []
+            [ text "USER REPOS VIEW"
+            ]
+        ]
+
+
+notFoundView : Html Msg
+notFoundView =
+    div [ css [ textAlign center ] ]
+        [ div []
+            [ text "NOT FOUND VIEW"
+            ]
         ]
 
 

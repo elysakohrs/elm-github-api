@@ -8,6 +8,7 @@ type alias Model =
     , inputText : String
     , userList : List User
     , userRepoList : List Repo
+    , route : Route
     }
 
 
