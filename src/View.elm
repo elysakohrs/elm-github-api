@@ -37,7 +37,7 @@ homeView model =
     div [ css [ textAlign center ] ]
         [ div []
             [ input [ onInput Change ] []
-            , button [] [ text "Submit" ]
+            , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
             ]
         ]
 
