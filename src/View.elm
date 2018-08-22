@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Commands exposing (getUsers)
 import Css exposing (border2, borderRadius, center, display, height, inlineBlock, margin, px, solid, textAlign, width)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
@@ -36,7 +37,7 @@ homeView model =
     div [ css [ textAlign center ] ]
         [ div []
             [ input [ onInput Change ] []
-            , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
+            , button [] [ text "Submit" ]
             ]
         ]
 
