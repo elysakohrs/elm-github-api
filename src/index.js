@@ -4,4 +4,11 @@ const config = require('./config.json');
 const root = document.getElementById('root');
 const date = new Date().toISOString();
 
-Elm.Main.embed(root, { ...config, date });
+var storedModel = localStorage.getItem('elm-github-model');
+var startingModel = storedModel ? JSON.parse(storedModel) : null;
+
+var app = Elm.Main.embed(root, { ...config, date });
+app.ports.setJsStorage.subscribe(function (model) {
+    console.log('from elm! ', model);
+    localStorage.setItem('elm-github-model', JSON.stringify(model));
+});

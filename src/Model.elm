@@ -1,4 +1,4 @@
-module Model exposing (Model, Repo, Route(..), User)
+module Model exposing (Model, Repo, Route(..), StorageModel, User)
 
 import Config exposing (Config)
 
@@ -30,4 +30,12 @@ type alias Repo =
     { name : String
     , language : String
     , watchersCount : Int
+    }
+
+
+type alias StorageModel =
+    { inputText : String
+    , userList : List User
+    , selectedUserLogin : String
+    , userRepoList : List Repo
     }

@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (init, initialModel, main)
 
 import Config exposing (Config)
 import Html.Styled exposing (..)
@@ -8,7 +8,7 @@ import Msg exposing (Msg(..))
 import Navigation exposing (Location)
 import Routing exposing (parseLocation)
 import Subscription exposing (subscriptions)
-import Update exposing (update)
+import Update exposing (update, updateWithStorage)
 import View exposing (view)
 
 
@@ -42,6 +42,6 @@ main =
     Navigation.programWithFlags Msg.OnLocationChange
         { view = view >> Html.Styled.toUnstyled
         , init = init
-        , update = update
+        , update = updateWithStorage
         , subscriptions = subscriptions
         }
