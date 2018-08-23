@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Css exposing (center, textAlign)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model)
 import Msg exposing (Msg(..))
@@ -36,7 +36,7 @@ homeView : Model -> Html Msg
 homeView model =
     div [ css [ textAlign center ] ]
         [ div []
-            [ input [ onInput Change ] []
+            [ input [ value model.inputText, onInput Change ] []
             , button [ onClick (GetUsers model.inputText) ] [ text "Submit" ]
             ]
         ]

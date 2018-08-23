@@ -1,11 +1,11 @@
 module Main exposing (init, initialModel, main)
 
-import Config exposing (Config)
 import Html.Styled exposing (..)
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
-import Model exposing (Model, Route(..))
+import Model exposing (Flags, Model, Repo, Route(..), StorageModel, User)
 import Msg exposing (Msg(..))
 import Navigation exposing (Location)
+import Ports exposing (flagsDecoder)
 import Routing exposing (parseLocation)
 import Subscription exposing (subscriptions)
 import Update exposing (update, updateWithStorage)
@@ -13,26 +13,26 @@ import View exposing (view)
 
 
 init : Value -> Location -> ( Model, Cmd Msg )
-init configValue location =
-    case JD.decodeValue Config.configDecoder configValue of
-        Ok config ->
+init flagsValue location =
+    case JD.decodeValue flagsDecoder flagsValue of
+        Ok flags ->
             let
                 currentRoute =
                     Routing.parseLocation location
             in
-            initialModel config currentRoute ! []
+            initialModel flags currentRoute ! []
 
         Err error ->
             Debug.crash error
 
 
-initialModel : Config -> Route -> Model
-initialModel config route =
-    { config = config
-    , inputText = ""
-    , userList = []
-    , selectedUserLogin = ""
-    , userRepoList = []
+initialModel : Flags -> Route -> Model
+initialModel flags route =
+    { config = flags.config
+    , inputText = flags.initialModel.inputText
+    , userList = flags.initialModel.userList
+    , selectedUserLogin = flags.initialModel.selectedUserLogin
+    , userRepoList = flags.initialModel.userRepoList
     , route = route
     }
 

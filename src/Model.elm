@@ -1,4 +1,4 @@
-module Model exposing (Model, Repo, Route(..), StorageModel, User)
+module Model exposing (Flags, Model, Repo, Route(..), StorageModel, User)
 
 import Config exposing (Config)
 
@@ -38,4 +38,10 @@ type alias StorageModel =
     , userList : List User
     , selectedUserLogin : String
     , userRepoList : List Repo
+    }
+
+
+type alias Flags =
+    { config : Config
+    , initialModel : StorageModel
     }

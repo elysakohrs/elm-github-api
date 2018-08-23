@@ -26,12 +26,12 @@ update msg model =
                     model ! []
 
         GetUserRepos userLogin ->
-            ( { model | selectedUserLogin = userLogin }, requestUserRepos userLogin )
+            ( { model | selectedUserLogin = userLogin }, Cmd.batch [ requestUserRepos userLogin, sendToJs model ] )
 
         UpdateUserRepos repoList ->
             case repoList of
                 Ok repoList ->
-                    ( { model | userRepoList = repoList }, Navigation.newUrl (reposPath model.selectedUserLogin) )
+                    ( { model | userRepoList = repoList }, Cmd.batch [ Navigation.newUrl (reposPath model.selectedUserLogin), sendToJs model ] )
 
                 Err _ ->
                     model ! []
@@ -56,9 +56,6 @@ updateWithStorage msg model =
 sendToJs : Model -> Cmd Msg
 sendToJs model =
     let
-        _ =
-            Debug.log "model! " model
-
         storageModel =
             { inputText = model.inputText
             , userList = model.userList

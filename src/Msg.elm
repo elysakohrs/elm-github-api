@@ -1,7 +1,7 @@
 module Msg exposing (Msg(..))
 
 import Http
-import Model exposing (Repo, StorageModel, User)
+import Model exposing (Repo, User)
 import Navigation exposing (Location)
 
 
