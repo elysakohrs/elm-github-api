@@ -11,7 +11,7 @@ port setJsStorage : StorageModel -> Cmd msg
 
 emptyStorageModel : StorageModel
 emptyStorageModel =
-    { inputText = ""
+    { userSearchQuery = ""
     , userList = []
     , selectedUserLogin = ""
     , userRepoList = []
@@ -28,7 +28,7 @@ flagsDecoder =
 storageModelDecoder : Decoder StorageModel
 storageModelDecoder =
     JDP.decode StorageModel
-        |> required "inputText" JD.string
+        |> required "userSearchQuery" JD.string
         |> required "userList" (JD.list userStorageModelDecoder)
         |> required "selectedUserLogin" JD.string
         |> required "userRepoList" (JD.list repoStorageModelDecoder)

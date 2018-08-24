@@ -15,12 +15,12 @@ update msg model =
             { model | inputText = newInputText } ! []
 
         GetUsers searchQuery ->
-            ( model, requestUsers searchQuery )
+            ( { model | userSearchQuery = searchQuery }, requestUsers searchQuery )
 
         UpdateUserList result ->
             case result of
                 Ok newSearchResult ->
-                    ( { model | userList = newSearchResult }, Cmd.batch [ Navigation.newUrl (usersPath model.inputText), sendToJs model ] )
+                    ( { model | userList = newSearchResult }, Cmd.batch [ Navigation.newUrl (usersPath model.userSearchQuery), sendToJs model ] )
 
                 Err _ ->
                     model ! []
@@ -57,7 +57,7 @@ sendToJs : Model -> Cmd Msg
 sendToJs model =
     let
         storageModel =
-            { inputText = model.inputText
+            { userSearchQuery = model.userSearchQuery
             , userList = model.userList
             , selectedUserLogin = model.selectedUserLogin
             , userRepoList = model.userRepoList

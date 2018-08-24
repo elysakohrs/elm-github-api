@@ -9,6 +9,5 @@ var startingModel = storedModel ? JSON.parse(storedModel) : null;
 
 var app = Elm.Main.embed(root, { config: {...config, date}, initialState: startingModel });
 app.ports.setJsStorage.subscribe(function (model) {
-    console.log('from elm! ', model);
     localStorage.setItem('elm-github-model', JSON.stringify(model));
 });

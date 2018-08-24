@@ -6,6 +6,7 @@ import Config exposing (Config)
 type alias Model =
     { config : Config
     , inputText : String
+    , userSearchQuery : String
     , userList : List User
     , selectedUserLogin : String
     , userRepoList : List Repo
@@ -34,7 +35,7 @@ type alias Repo =
 
 
 type alias StorageModel =
-    { inputText : String
+    { userSearchQuery : String
     , userList : List User
     , selectedUserLogin : String
     , userRepoList : List Repo
