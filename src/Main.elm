@@ -1,6 +1,6 @@
 module Main exposing (init, initialModel, main)
 
-import Commands exposing (requestUserRepos, requestUsers)
+import Commands exposing (getCommandsOnLocationChange, requestUserRepos, requestUsers)
 import Html.Styled exposing (..)
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
 import Model exposing (Flags, Model, Repo, Route(..), StorageModel, User)
@@ -27,39 +27,10 @@ init flagsValue location =
                 startingModel =
                     initialModel flags currentRoute
             in
-            case currentRoute of
-                HomeRoute ->
-                    ( startingModel, Cmd.none )
-
-                UserSearchRoute searchQuery ->
-                    checkNeedToRequestUsers searchQuery startingModel
-
-                UserReposRoute userLogin ->
-                    checkNeedToRequestRepos userLogin startingModel
-
-                NotFoundRoute ->
-                    startingModel ! []
+            getCommandsOnLocationChange startingModel
 
         Err error ->
             Debug.crash error
-
-
-checkNeedToRequestUsers : String -> Model -> ( Model, Cmd Msg )
-checkNeedToRequestUsers routeSearchQuery model =
-    if routeSearchQuery /= model.userSearchQuery then
-        ( { model | userSearchQuery = routeSearchQuery }, requestUsers routeSearchQuery )
-
-    else
-        model ! []
-
-
-checkNeedToRequestRepos : String -> Model -> ( Model, Cmd Msg )
-checkNeedToRequestRepos routeUserLogin model =
-    if routeUserLogin /= model.selectedUserLogin then
-        ( { model | selectedUserLogin = routeUserLogin }, requestUserRepos routeUserLogin )
-
-    else
-        model ! []
 
 
 initialModel : Flags -> Route -> Model

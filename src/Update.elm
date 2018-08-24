@@ -35,18 +35,7 @@ update msg model =
                 newRoute =
                     parseLocation location
             in
-            case newRoute of
-                HomeRoute ->
-                    { model | route = newRoute } ! []
-
-                UserSearchRoute searchQuery ->
-                    ( { model | route = newRoute, userSearchQuery = searchQuery }, requestUsers searchQuery )
-
-                UserReposRoute userLogin ->
-                    ( { model | route = newRoute, selectedUserLogin = userLogin }, requestUserRepos userLogin )
-
-                NotFoundRoute ->
-                    { model | route = newRoute } ! []
+            getCommandsOnLocationChange { model | route = newRoute }
 
         ChangeLocation path ->
             ( model, Navigation.newUrl path )

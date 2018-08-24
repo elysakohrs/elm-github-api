@@ -1,10 +1,44 @@
-module Commands exposing (repoDecoder, repoListDecoder, requestUserRepos, requestUsers, userDecoder, userSearchDecoder)
+module Commands exposing (getCommandsOnLocationChange, repoDecoder, repoListDecoder, requestUserRepos, requestUsers, userDecoder, userSearchDecoder)
 
 import Http
 import Json.Decode as JD exposing (Decoder, Value, field, int, list, string)
 import Json.Decode.Pipeline exposing (decode, optional, required)
 import Model exposing (..)
 import Msg exposing (Msg(..))
+
+
+getCommandsOnLocationChange : Model -> ( Model, Cmd Msg )
+getCommandsOnLocationChange model =
+    case model.route of
+        HomeRoute ->
+            model ! []
+
+        UserSearchRoute searchQuery ->
+            checkNeedToRequestUsers searchQuery model
+
+        UserReposRoute userLogin ->
+            checkNeedToRequestRepos userLogin model
+
+        NotFoundRoute ->
+            model ! []
+
+
+checkNeedToRequestUsers : String -> Model -> ( Model, Cmd Msg )
+checkNeedToRequestUsers routeSearchQuery model =
+    if routeSearchQuery /= model.userSearchQuery then
+        ( { model | userSearchQuery = routeSearchQuery }, requestUsers routeSearchQuery )
+
+    else
+        model ! []
+
+
+checkNeedToRequestRepos : String -> Model -> ( Model, Cmd Msg )
+checkNeedToRequestRepos routeUserLogin model =
+    if routeUserLogin /= model.selectedUserLogin then
+        ( { model | selectedUserLogin = routeUserLogin }, requestUserRepos routeUserLogin )
+
+    else
+        model ! []
 
 
 requestUsers : String -> Cmd Msg
