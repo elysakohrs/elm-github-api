@@ -37,7 +37,7 @@ homeView : Model -> Html Msg
 homeView model =
     div [ css [ textAlign center ] ]
         [ div []
-            [ input [ onInput UpdateInput ] []
+            [ input [ onInput UpdateInput, value model.inputText ] []
             , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
             ]
         ]

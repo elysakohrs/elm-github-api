@@ -18,9 +18,6 @@ init flagsValue location =
     case JD.decodeValue flagsDecoder flagsValue of
         Ok flags ->
             let
-                _ =
-                    Debug.log "FLAGS" flags
-
                 currentRoute =
                     Routing.parseLocation location
 
