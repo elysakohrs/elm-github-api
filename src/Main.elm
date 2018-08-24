@@ -18,42 +18,48 @@ init flagsValue location =
     case JD.decodeValue flagsDecoder flagsValue of
         Ok flags ->
             let
+                _ =
+                    Debug.log "FLAGS" flags
+
                 currentRoute =
                     Routing.parseLocation location
 
-                cmds =
-                    case currentRoute of
-                        UserSearchRoute searchQuery ->
-                            getUserSearchCmds searchQuery flags.initialModel.userSearchQuery
-
-                        UserReposRoute userLogin ->
-                            getUserReposCmds userLogin flags.initialModel.selectedUserLogin
-
-                        other ->
-                            []
+                startingModel =
+                    initialModel flags currentRoute
             in
-            initialModel flags currentRoute ! cmds
+            case currentRoute of
+                HomeRoute ->
+                    ( startingModel, Cmd.none )
+
+                UserSearchRoute searchQuery ->
+                    checkNeedToRequestUsers searchQuery startingModel
+
+                UserReposRoute userLogin ->
+                    checkNeedToRequestRepos userLogin startingModel
+
+                NotFoundRoute ->
+                    startingModel ! []
 
         Err error ->
             Debug.crash error
 
 
-getUserSearchCmds : String -> String -> List (Cmd Msg)
-getUserSearchCmds urlSearchTerm storedInputText =
-    if urlSearchTerm /= storedInputText then
-        [ requestUsers urlSearchTerm ]
+checkNeedToRequestUsers : String -> Model -> ( Model, Cmd Msg )
+checkNeedToRequestUsers routeSearchQuery model =
+    if routeSearchQuery /= model.userSearchQuery then
+        ( { model | userSearchQuery = routeSearchQuery }, requestUsers routeSearchQuery )
 
     else
-        []
+        model ! []
 
 
-getUserReposCmds : String -> String -> List (Cmd Msg)
-getUserReposCmds urlUserLogin selectedUserLogin =
-    if urlUserLogin /= selectedUserLogin then
-        [ requestUserRepos urlUserLogin ]
+checkNeedToRequestRepos : String -> Model -> ( Model, Cmd Msg )
+checkNeedToRequestRepos routeUserLogin model =
+    if routeUserLogin /= model.selectedUserLogin then
+        ( { model | selectedUserLogin = routeUserLogin }, requestUserRepos routeUserLogin )
 
     else
-        []
+        model ! []
 
 
 initialModel : Flags -> Route -> Model

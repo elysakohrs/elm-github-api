@@ -6,6 +6,7 @@ import Html.Styled.Attributes exposing (css, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Model exposing (Model)
 import Msg exposing (Msg(..))
+import Routing exposing (usersPath)
 import UserReposView exposing (userReposView)
 import UserSearchView exposing (userSearchView)
 
@@ -36,8 +37,8 @@ homeView : Model -> Html Msg
 homeView model =
     div [ css [ textAlign center ] ]
         [ div []
-            [ input [ value model.inputText, onInput Change ] []
-            , button [ onClick (GetUsers model.inputText) ] [ text "Submit" ]
+            [ input [ onInput UpdateInput ] []
+            , button [ onClick (ChangeLocation (usersPath model.inputText)) ] [ text "Submit" ]
             ]
         ]
 

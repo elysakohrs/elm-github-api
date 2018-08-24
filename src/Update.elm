@@ -11,27 +11,21 @@ import Routing exposing (parseLocation, reposPath, usersPath)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Change newInputText ->
+        UpdateInput newInputText ->
             { model | inputText = newInputText } ! []
-
-        GetUsers searchQuery ->
-            ( { model | userSearchQuery = searchQuery }, requestUsers searchQuery )
 
         UpdateUserList result ->
             case result of
                 Ok newSearchResult ->
-                    ( { model | userList = newSearchResult }, Cmd.batch [ Navigation.newUrl (usersPath model.userSearchQuery), sendToJs model ] )
+                    ( { model | userList = newSearchResult }, sendToJs model )
 
                 Err _ ->
                     model ! []
 
-        GetUserRepos userLogin ->
-            ( { model | selectedUserLogin = userLogin }, Cmd.batch [ requestUserRepos userLogin, sendToJs model ] )
-
         UpdateUserRepos repoList ->
             case repoList of
                 Ok repoList ->
-                    ( { model | userRepoList = repoList }, Cmd.batch [ Navigation.newUrl (reposPath model.selectedUserLogin), sendToJs model ] )
+                    ( { model | userRepoList = repoList }, sendToJs model )
 
                 Err _ ->
                     model ! []
@@ -41,7 +35,21 @@ update msg model =
                 newRoute =
                     parseLocation location
             in
-            { model | route = newRoute } ! []
+            case newRoute of
+                HomeRoute ->
+                    { model | route = newRoute } ! []
+
+                UserSearchRoute searchQuery ->
+                    ( { model | route = newRoute, userSearchQuery = searchQuery }, requestUsers searchQuery )
+
+                UserReposRoute userLogin ->
+                    ( { model | route = newRoute, selectedUserLogin = userLogin }, requestUserRepos userLogin )
+
+                NotFoundRoute ->
+                    { model | route = newRoute } ! []
+
+        ChangeLocation path ->
+            ( model, Navigation.newUrl path )
 
 
 updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
